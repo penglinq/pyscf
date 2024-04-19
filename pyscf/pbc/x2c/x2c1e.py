@@ -109,6 +109,21 @@ class X2C1E_GSCF(x2c._X2C_SCF):
 
 class SpinOrbitalX2C1EHelper(sfx2c1e.PBCX2CHelper):
     def get_hcore(self, cell=None, kpts=None):
+        print("inside x2c1e helper")
+        ###
+        import os
+        if os.path.isfile('h1_kpts.npy'):
+            h1_kpts = numpy.load("h1_kpts.npy")
+            print("read h1_kpts")
+            if numpy.shape(kpts) == (3,) and h1_kpts.ndim == 3:
+                h1_kpts = h1_kpts[0]
+            return lib.asarray(h1_kpts)
+        ###
+        from mpi4py import MPI
+        comm = MPI.COMM_WORLD
+        mpirank = comm.Get_rank()
+        ###
+
         if cell is None:
             cell = self.cell
         if kpts is None:
@@ -124,11 +139,26 @@ class SpinOrbitalX2C1EHelper(sfx2c1e.PBCX2CHelper):
 
         c = lib.param.LIGHT_SPEED
 
+        import os ### 
         if 'ATOM' in self.approx.upper():
             raise NotImplementedError
         else:
-            w_sr = sfx2c1e.get_pnucp(with_df, kpts_lst)
-            w_soc = get_pbc_pvxp(with_df, kpts_lst)
+            ### 
+            if os.path.isfile('w_sr.npy'):
+                # 1 x xnao x xnao
+                w_sr = numpy.load('w_sr.npy')
+            else:   
+                w_sr = sfx2c1e.get_pnucp(with_df, kpts_lst)
+                numpy.save('w_sr.npy', w_sr) ###
+            if os.path.isfile('w_soc.npy'):
+                # 1 x 3 x xnao x xnao
+                w_soc = numpy.load('w_soc.npy')
+            else:
+                w_soc = get_pbc_pvxp(with_df, kpts_lst)
+                ###
+                if mpirank == 0 :
+                    numpy.save('w_soc.npy', w_soc)
+                ###
             #w_soc = get_pbc_pvxp(xcell, kpts_lst)
             w = []
             for k in range(len(kpts_lst)):
@@ -168,6 +198,8 @@ class SpinOrbitalX2C1EHelper(sfx2c1e.PBCX2CHelper):
 
         if kpts is None or numpy.shape(kpts) == (3,):
             h1_kpts = h1_kpts[0]
+        if mpirank == 0: ###
+            numpy.save("h1_kpts.npy", h1_kpts) ###
         return lib.asarray(h1_kpts)
 
     def dump_flags(self, verbose=None):
@@ -243,8 +275,17 @@ def get_pbc_pvxp(mydf, kpts=None):
     Gblksize = min(Gblksize, ngrids, 200000)
     log.debug1('max_memory = %s  Gblksize = %s  ngrids = %s',
                max_memory, Gblksize, ngrids)
+    log.debug1("Number of uncontracted ao %s", nao)
+    ###
+    from mpi4py import MPI
+    comm = MPI.COMM_WORLD
+    mpirank = comm.Get_rank()
+    mpisize = comm.Get_size()
 
-    for p0, p1 in lib.prange(0, ngrids, Gblksize):
+    ngrids_slice = int((ngrids+mpisize-1) // mpisize)
+    log.debug1("grid range %s to %s", mpirank*ngrids_slice, min(ngrids, (mpirank+1)*ngrids_slice))
+    for p0, p1 in lib.prange(mpirank*ngrids_slice, min(ngrids, (mpirank+1)*ngrids_slice), Gblksize):
+    ### for p0, p1 in lib.prange(0, ngrids, Gblksize):
         # shape of Gpq (nkpts, nGv, nao_pair)
         Gpq = ft_kern(Gv[p0:p1], gxyz[p0:p1], Gvbase, kpt_allow)
         for k, (GpqR, GpqI) in enumerate(zip(*Gpq)):
@@ -266,6 +307,12 @@ def get_pbc_pvxp(mydf, kpts=None):
 
     if kpts is None or numpy.shape(kpts) == (3,):
         soc_mat_kpts = soc_mat_kpts[0]
+    ###
+    soc_mat_kpts = numpy.asarray(soc_mat_kpts)
+    numpy.save('soc_%s.npy'%mpirank, soc_mat_kpts)
+    comm.Barrier()
+    soc_mat_kpts = comm.allreduce(soc_mat_kpts)
+    ###
     return numpy.asarray(soc_mat_kpts)
 
 def _block_diag(mat):

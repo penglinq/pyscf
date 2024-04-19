@@ -124,6 +124,16 @@ class SpinFreeX2CHelper(PBCX2CHelper):
     '''1-component X2c Foldy-Wouthuysen (FW Hamiltonian  (spin-free part only)
     '''
     def get_hcore(self, cell=None, kpts=None):
+        print("inside sfx2c1e helper")
+        ###
+        import os
+        if os.path.isfile('h1_kpts_sf.npy'):
+            h1_kpts = numpy.load("h1_kpts_sf.npy")
+            print("read h1_kpts_sf")
+            if numpy.shape(kpts) == (3,) and h1_kpts.ndim == 3:
+                h1_kpts = h1_kpts[0]
+            return lib.asarray(h1_kpts)
+        ###
         from pyscf.pbc.df import df
         if cell is None: cell = self.cell
         if kpts is None:
@@ -163,6 +173,7 @@ class SpinFreeX2CHelper(PBCX2CHelper):
             raise NotImplementedError
         else:
             v = lib.asarray(with_df.get_nuc(kpts_lst))
+            numpy.save('v.npy', v) ###
         if self.basis is not None:
             s22 = s
             s21 = pbcgto.intor_cross('int1e_ovlp', xcell, cell, kpts=kpts_lst)
@@ -188,6 +199,7 @@ class SpinFreeX2CHelper(PBCX2CHelper):
 
         if kpts is None or numpy.shape(kpts) == (3,):
             h1_kpts = h1_kpts[0]
+        numpy.save("h1_kpts_sf.npy", h1_kpts) ###
         return lib.asarray(h1_kpts)
 
     def get_xmat(self, cell=None, kpts=None):
@@ -226,6 +238,12 @@ class SpinFreeX2CHelper(PBCX2CHelper):
 
 # Use Ewald-like technique to compute spVsp without the G=0 contribution.
 def get_pnucp(mydf, kpts=None):
+    ###
+    import os
+    if os.path.isfile('w_sr.npy'):
+        w = numpy.load('w_sr.npy')
+        return w
+    ###
     cell = mydf.cell
     if kpts is None:
         kpts_lst = numpy.zeros((1,3))

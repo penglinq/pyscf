@@ -301,7 +301,7 @@ def analyze(mf, verbose=logger.DEBUG, with_meta_lowdin=WITH_META_LOWDIN,
         log.note('MO #%-3d energy= %-18.15g occ= %g', i+MO_BASE, mo_energy[i], c)
     ovlp_ao = mf.get_ovlp()
     dm = mf.make_rdm1(mo_coeff, mo_occ)
-    dip = mf.dip_moment(mf.mol, dm, verbose=log)
+    dip = numpy.inf ###mf.dip_moment(mf.mol, dm, verbose=log)
     if with_meta_lowdin:
         pop_and_chg = mf.mulliken_meta(mf.mol, dm, s=ovlp_ao, verbose=log)
     else:

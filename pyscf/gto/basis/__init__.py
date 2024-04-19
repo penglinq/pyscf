@@ -373,6 +373,30 @@ ALIAS = {
     'dyallv2z' : 'dyall-basis.dyall_v2z',
     'dyallv3z' : 'dyall-basis.dyall_v3z',
     'dyallv4z' : 'dyall-basis.dyall_v4z',
+# added by TZ
+    'def2svpbracket'    : 'def2-svp-bracket.dat',
+    'def2svpbracketri'  : 'def2-svp-bracket-ri.dat',
+    'def2svpminao'      : 'def2-svp-minao.dat',
+    'def2svpminaoval'   : 'def2-svp-minao-val.dat',
+    'def2svpminaocore'  : 'def2-svp-minao-core.dat',
+    'ccpvdzminao'       : 'cc-pvdz-minao.dat'    ,
+    'ccpvdzminaocore'   : 'cc-pvdz-minao-core.dat'    ,
+    'ccpvdzminaoval'    : 'cc-pvdz-minao-val.dat'    ,
+    'def2tzvpminao'     : 'def2-tzvp-minao.dat',
+    'def2tzvpminaoval'  : 'def2-tzvp-minao-val.dat',
+    'def2tzvpminaocore' : 'def2-tzvp-minao-core.dat',
+    'def2svpbracketminao'    : 'def2-svp-bracket-minao.dat',
+    'def2svpbracketminaocore'   : 'def2-svp-bracket-minao-core.dat',
+    'def2svpbracketminaoval'    : 'def2-svp-bracket-minao-val.dat',
+    'def2svpbracketminao2'    : 'def2-svp-bracket-minao-2.dat',
+    'def2svpbracketminaoval2'    : 'def2-svp-bracket-minao-val-2.dat',
+# added by LP
+    'ccpvtzminao'       : 'cc-pvtz-minao.dat',
+    'ccpvtzminaocore'   : 'cc-pvtz-minao-core.dat',
+    'ccpvtzminaoval'    : 'cc-pvtz-minao-val.dat',
+    'sarcdkhminao' : 'sarc-dkh2-minao.dat',
+    'ccpvtzdkminao' : 'cc-pvtz-dk-minao.dat',
+
 }
 
 GTH_ALIAS = {
