@@ -72,13 +72,13 @@ find_package(BLAS)
 check_function_exists(ffsll HAVE_FFS)
 endif()
 
-# if (NOT BLAS_LIBRARIES)
-#   message(FATAL_ERROR "A required library with BLAS API not found.")
-# else()
-#   message(STATUS "BLAS libraries: ${BLAS_LIBRARIES}")
-# endif()
-#  if unable to find mkl library, just create BLAS_LIBRARIES here, e.g.
-set(BLAS_LIBRARIES "-L/opt/intel/oneapi/mkl/2023.2.0/lib -lmkl_intel_lp64 -lmkl_sequential -lmkl_core -lpthread -lmkl_avx -lm")
+if (NOT BLAS_LIBRARIES)
+  message(FATAL_ERROR "A required library with BLAS API not found.")
+else()
+  message(STATUS "BLAS libraries: ${BLAS_LIBRARIES}")
+endif()
+# if unable to find mkl library, just create BLAS_LIBRARIES here, e.g.
+# set(BLAS_LIBRARIES "-L/path/to/mkl/lib -lmkl_intel_lp64 -lmkl_sequential -lmkl_core -lpthread -lmkl_avx -lm")
 # or
 # set(BLAS_LIBRARIES "                  /path/to/mkl/lib/intel64/libmkl_intel_lp64.so")
 # set(BLAS_LIBRARIES "${BLAS_LIBRARIES};/path/to/mkl/lib/intel64/libmkl_sequential.so")
